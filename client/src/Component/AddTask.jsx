@@ -1,79 +1,73 @@
-import React, { useEffect, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import axios from 'axios';
-import toast from 'react-hot-toast'; 
+import toast from 'react-hot-toast';
 
-import AddTask from './AddTask'; // Asegúrate de importar tu componente AddTask
+export default function AddTask() {
+    const [value, setValue] = useState({
+        name: '',
+        task: '',
+        date: '',
+        description: ''
+    });
 
-export default function Table({ Deletuser, UpdatedUser }) {
-    const [data, setData] = useState([]);
+    const handleOnchange = (e) => {
+        setValue({
+            ...value,
+            [e.target.name]: e.target.value
+        });
+    };
 
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                const response = await axios.get('http://localhost:8000/api/get');
-                setData(response.data.users || []); 
-            } catch (error) {
-                console.log(error);
+    const CloseRef = useRef();
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const addTask = await axios.post('http://localhost:8000/api/create', value);
+            const response = addTask.data;
+            if (response.success) {
+                toast.success(response.Message);
+                CloseRef.current.click();
             }
+        } catch (error) {
+            console.log(error);
+            toast.error('Error al agregar la tarea.');
         }
-        fetchData();
-    }, []);
-
-    const handleTaskAdded = (newTask) => {
-        setData((prevData) => [...prevData, newTask]); // Agrega la nueva tarea al estado
     };
 
     return (
         <>
-            <div className="container">
-                <div className="table-wrapper">
-                    <div className="table-title">
-                        <div className="row">
-                            <div className="col-sm-6">
-                                <h2>Nueva <b>Tarea</b></h2>
+            <div id="addTaskModal" className="modal fade">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <form onSubmit={handleSubmit}>
+                            <div className="modal-header">
+                                <h4 className="modal-title">Agregar Tarea</h4>
+                                <button type="button" className="close" data-bs-dismiss="modal" aria-hidden="true" ref={CloseRef}>&times;</button>
                             </div>
-                            <div className="col-sm-6">
-                                <a href="#" className="btn btn-success" data-bs-toggle="modal" data-bs-target="#addtask">
-                                    <i className="material-icons">&#xE147;</i> <span>Agregar Nueva Tarea</span>
-                                </a>
+                            <div className="modal-body">
+                                <div className="form-group">
+                                    <label>Nombre</label>
+                                    <input type="text" value={value.name} name="name" onChange={handleOnchange} className="form-control" required />
+                                </div>
+                                <div className="form-group">
+                                    <label>Tarea</label>
+                                    <input type="text" value={value.task} name="task" onChange={handleOnchange} className="form-control" required />
+                                </div>
+                                <div className="form-group">
+                                    <label>Fecha</label>
+                                    <input type="date" value={value.date} name="date" onChange={handleOnchange} className="form-control" required />
+                                </div>
+                                <div className="form-group">
+                                    <label>Descripción</label>
+                                    <textarea value={value.description} name="description" onChange={handleOnchange} className="form-control" required />
+                                </div>
                             </div>
-                        </div>
+                            <div className="modal-footer">
+                                <input type="button" className="btn btn-default" data-bs-dismiss="modal" value="Cancelar" />
+                                <input type="submit" className="btn btn-primary" value="Agregar" />
+                            </div>
+                        </form>
                     </div>
-
-                    {/* Modal para agregar nueva tarea */}
-                    <AddTask onTaskAdded={handleTaskAdded} /> {/* Pasa la función aquí */}
-
-                    <table className="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th>Nombre</th>
-                                <th>Tarea</th>
-                                <th>Fecha</th>
-                                <th>Descripción</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {data.map((elem) => (
-                                <tr key={elem._id}>
-                                    <td></td>
-                                    <td>{elem.name}</td>
-                                    <td>{elem.task}</td>
-                                    <td>{elem.date}</td>
-                                    <td>{elem.description}</td>
-                                    <td>
-                                        <a href="#" className="edit cursor-pointer" data-bs-toggle="modal" data-bs-target="#editTask" onClick={() => UpdatedUser(elem._id)}>
-                                            <i className="material-icons" data-bs-toggle="tooltip" title="Edit">&#xE254;</i>
-                                        </a>
-                                        <a href="#" className="delete cursor-pointer" data-bs-toggle="modal" data-bs-target="#deleteTask" onClick={() => Deletuser(elem._id)}>
-                                            <i className="material-icons" data-bs-toggle="tooltip" title="Delete">&#xE872;</i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </>
