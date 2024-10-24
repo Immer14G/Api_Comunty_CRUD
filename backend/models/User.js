@@ -1,25 +1,24 @@
 import mongoose from "mongoose";
 
-const userSchema= new mongoose.Schema({
-    name:{
-        type:String,
-        required:true
+const taskSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
     },
-        fathername:{
-        type:String,
-        required:true
-    }, 
-       email:{
-        type:String,
-        required:true
+    task: {
+        type: String,
+        required: true
     },
-         phone:{
-        type:String,
-        required:true
+    date: {
+        type: Date,
+        required: true
+    },
+    description: {
+        type: String,
+        required: true
     }
-},{timestamps:true})
+}, { timestamps: true });
 
+const taskModel = mongoose.model('Task', taskSchema);
 
-const usermodel= mongoose.model('user',userSchema)
-
-export default usermodel
+export default taskModel;

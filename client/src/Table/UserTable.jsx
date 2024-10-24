@@ -1,77 +1,70 @@
-import React, { useState } from 'react'
-import Table from '../Component/Table'
-import AddUser from '../Component/AddUser'
-import UpdatedUser from '../Component/UpdatedUser'
-import DeletUser from '../Component/DeletUser'
-import axios from 'axios'
-import toast from 'react-hot-toast'
+import React, { useState, useEffect } from 'react'; 
+import Table from '../Component/Table'; 
+import AddTask from '../Component/AddTask.jsx'; 
+import UpdateTask from '../Component/UpdatedTask.jsx'; 
+import DeleteTask from '../Component/DeletTask.jsx'; 
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 export default function UserTable() {
-    const [userId, setUserId] = useState()
-    const [updatedUserId, setUpdatedUserId] = useState()
-    console.log(updatedUserId)
+    const [userId, setUserId] = useState();
+    const [updatedUserId, setUpdatedUserId] = useState();
     const [value, setValue] = useState({
         name: "",
-        fathername: "",
-        email: "",
-        phone: ""
-    })
+        task: "",
+        date: "",
+        description: ""
+    });
+
     const deletuser = (userid) => {
-        setUserId(userid)
-    }
+        setUserId(userid);
+    };
+
     const handleUserDelet = async () => {
         try {
-            const DeletUser = await axios.delete(`http://localhost:8000/api/delete/${userId}`)
-            const response = DeletUser.data
+            const DeleteTask = await axios.delete(`http://localhost:8000/api/delete/${userId}`);
+            const response = DeleteTask.data;
             if (response.success) {
-                toast.success(response.message)
+                toast.success(response.message);
             }
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            toast.error('Error al eliminar la tarea.');
         }
-    }
+    };
 
     const handlechange = (e) => {
         setValue({
             ...value,
             [e.target.name]: e.target.value
-        })
-
-    }
-
+        });
+    };
 
     const UpadteUserData = (Updatedid) => {
+        setUpdatedUserId(Updatedid);
+    };
 
-        setUpdatedUserId(Updatedid)
-
-    }
     const handleOnSubmit = async (e) => {
         e.preventDefault();
-    
         try {
-            const UpdatedUser = await axios.put(`http://localhost:8000/api/update/${updatedUserId}`,value)
-            const response = UpdatedUser.data
+            const UpdateTask = await axios.put(`http://localhost:8000/api/update/${updatedUserId}`, value);
+            const response = UpdateTask.data;
 
             if (response.success) {
-                toast.success(response.message)
+                toast.success(response.message);
             }
-            // console.log(response)
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            toast.error('Error al actualizar la tarea.');
         }
-        // console.log(value)
-    }
+    };
+
     return (
         <>
-            <Table Deletuser={deletuser} UpdatedUser={UpadteUserData}></Table>
-
-            <AddUser></AddUser>
-            <UpdatedUser handleOnSubmit={handleOnSubmit} value={value} handlechange={handlechange}></UpdatedUser>
-            <DeletUser handleUserDelet={handleUserDelet} ></DeletUser>
-
-
-
-
+            <Table Deletuser={deletuser} UpdateTask={UpadteUserData} />
+            <AddTask />
+            <UpdateTask handleOnSubmit={handleOnSubmit} value={value} handlechange={handlechange} />
+            <DeleteTask handleUserDelet={handleUserDelet} />
         </>
-    )
+    );
 }
