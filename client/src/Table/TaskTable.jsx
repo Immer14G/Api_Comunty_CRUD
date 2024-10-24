@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Table from '../Component/Table'; 
 import AddTask from '../Component/AddTask'; 
-import UpdateTask from '../Component/UpdatedTask'; 
+import UpdateTaskModal from '../Component/UpdatedTask'; 
 import DeleteTask from '../Component/DeletTask'; 
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
 export default function TaskManagement() {
-    const [taskId, setTaskId] = useState();
-    const [updatedTaskId, setUpdatedTaskId] = useState();
+    const [taskId, setTaskId] = useState(null);
+    const [isModalOpen, setModalOpen] = useState(false);
     const [taskValues, setTaskValues] = useState({
         name: "",
         task: "",
@@ -38,29 +38,55 @@ export default function TaskManagement() {
         });
     };
 
-    const updateTaskData = (id) => {
-        setUpdatedTaskId(id);
-        
+    const updateTaskData = (task) => {
+        setTaskValues(task);
+        setModalOpen(true);
     };
 
     const handleOnSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            const response = await axios.put(`http://localhost:8000/api/update/${updatedTaskId}`, taskValues);
+            const response = await axios.put(`http://localhost:8000/api/update/${taskId}`, taskValues);
             if (response.data.success) {
                 toast.success(response.data.message);
+                setModalOpen(false);
+                setTaskValues({
+                    name: "",
+                    task: "",
+                    date: "",
+                    description: ""
+                });
             }
         } catch (error) {
             console.log(error);
         }
     };
 
+    // Manejo del cierre del modal al desmontar
+    useEffect(() => {
+        if (isModalOpen) {
+            const modalElement = document.getElementById('editTaskModal');
+            const modalInstance = new window.bootstrap.Modal(modalElement);
+            modalInstance.show();
+
+            return () => {
+                modalInstance.hide(); // Asegúrate de ocultar el modal al desmontar
+            };
+        }
+    }, [isModalOpen]);
+
     return (
         <>
             <Table deleteTask={deleteTask} updateTask={updateTaskData} />
             <AddTask />
-            <UpdateTask handleOnSubmit={handleOnSubmit} values={taskValues} handleChange={handleChange} />
+            <UpdateTaskModal
+                isOpen={isModalOpen}
+                onClose={() => setModalOpen(false)}
+                onSubmit={handleOnSubmit}
+                value={taskValues}
+                handleChange={handleChange}
+            />
             <DeleteTask handleTaskDelete={handleTaskDelete} />
         </>
     );
