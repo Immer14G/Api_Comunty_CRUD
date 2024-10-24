@@ -1,6 +1,9 @@
-import React from 'react';
-
 export default function UpdateTask({ handleOnSubmit, value, handlechange }) {
+   
+    if (!value) {
+        return null; 
+    }
+
     return (
         <>
             <div id="editTaskModal" className="modal fade">
@@ -14,19 +17,19 @@ export default function UpdateTask({ handleOnSubmit, value, handlechange }) {
                             <div className="modal-body">
                                 <div className="form-group">
                                     <label>Nombre</label>
-                                    <input type="text" value={value.name} name="name" onChange={handlechange} className="form-control" />
+                                    <input type="text" value={value.name || ''} name="name" onChange={handlechange} className="form-control" />
                                 </div>
                                 <div className="form-group">
                                     <label>Tarea</label>
-                                    <input type="text" value={value.task} name="task" onChange={handlechange} className="form-control" />
+                                    <input type="text" value={value.task || ''} name="task" onChange={handlechange} className="form-control" />
                                 </div>
                                 <div className="form-group">
                                     <label>Fecha</label>
-                                    <input type="date" value={value.date} name="date" onChange={handlechange} className="form-control" />
+                                    <input type="date" value={value.date || ''} name="date" onChange={handlechange} className="form-control" />
                                 </div>
                                 <div className="form-group">
                                     <label>Descripción</label>
-                                    <textarea value={value.description} name="description" onChange={handlechange} className="form-control" />
+                                    <textarea value={value.description || ''} name="description" onChange={handlechange} className="form-control" />
                                 </div>
                             </div>
                             <div className="modal-footer">
