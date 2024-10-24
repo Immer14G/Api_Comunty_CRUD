@@ -2,77 +2,69 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 
 export default function Table({ deleteTask, updateTask }) {
-    const [tasks, setTasks] = useState([]);
-    const [error, setError] = useState(null);
+    const [data, setData] = useState([]);
 
     useEffect(() => {
-        const fetchData = async () => {
+        async function fetchData() {
             try {
                 const response = await axios.get('http://localhost:8000/api/get');
-                setTasks(response.data.tasks);
-                setError(null); 
+                setData(response.data);
             } catch (error) {
-                console.error("Error fetching tasks:", error);
-                setError("Error al cargar tareas."); 
+                console.log(error);
             }
-        };
+        }
         fetchData();
-    }, []);
+    }, [data]);
 
     return (
-        <div className="container">
-            <div className="table-wrapper">
-                <div className="table-title">
-                    <div className="row">
-                        <div className="col-sm-6">
-                            <h2>Gestionar <b>Tareas</b></h2>
-                        </div>
-                        <div className="col-sm-6">
-                            <a href="#" className="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTaskModal">
-                                <i className="material-icons">&#xE147;</i> <span>Añadir Nueva Tarea</span>
-                            </a>
+        <>
+            <div className="container">
+                <div className="table-wrapper">
+                    <div className="table-title">
+                        <div className="row">
+                            <div className="col-sm-6">
+                                <h2>Gestión de <b>Tareas</b></h2>
+                            </div>
+                            <div className="col-sm-6">
+                                <a href="#" className="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTaskModal">
+                                    <i className="material-icons">&#xE147;</i> <span>Añadir Nueva Tarea</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
-                {error && <div className="alert alert-danger">{error}</div>}
-                <table className="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Nombre</th>
-                            <th>Tarea</th>
-                            <th>Fecha</th>
-                            <th>Descripción</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {tasks.length > 0 ? (
-                            tasks.map((task) => (
-                                <tr key={task._id}>
+                    <table className="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Nombre</th>
+                                <th>Tarea</th>
+                                <th>Fecha</th>
+                                <th>Descripción</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {data.tasks?.map((elem, index) => (
+                                <tr key={index}>
                                     <td></td>
-                                    <td>{task.name}</td>
-                                    <td>{task.task}</td>
-                                    <td>{task.date}</td>
-                                    <td>{task.description}</td>
+                                    <td>{elem.name}</td>
+                                    <td>{elem.task}</td>
+                                    <td>{elem.date}</td>
+                                    <td>{elem.description}</td>
                                     <td>
-                                        <a href="#" className="edit cursor-pointer" data-bs-toggle="modal" data-bs-target="#editTaskModal" onClick={() => updateTask(task._id)}>
+                                        <a href="#" className="edit cursor-pointer" data-bs-toggle="modal" data-bs-target="#editTaskModal" onClick={() => updateTask(elem._id)}>
                                             <i className="material-icons" data-bs-toggle="tooltip" title="Editar">&#xE254;</i>
                                         </a>
-                                        <a href="#" className="delete cursor-pointer" data-bs-toggle="modal" data-bs-target="#deleteTaskModal" onClick={() => deleteTask(task._id)}>
+                                        <a href="#" className="delete cursor-pointer" data-bs-toggle="modal" data-bs-target="#deleteTaskModal" onClick={() => deleteTask(elem._id)}>
                                             <i className="material-icons" data-bs-toggle="tooltip" title="Eliminar">&#xE872;</i>
                                         </a>
                                     </td>
                                 </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="6" className="text-center">No hay tareas disponibles.</td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
+        </>
     );
 }
